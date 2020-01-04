@@ -61,7 +61,7 @@ class k_tablet():
 
     def f(self, x):
         k = int(np.ceil(len(x) / 4.0))
-        t1 = np.sum(x[:k])
+        t1 = np.sum(x[:k] ** 2)
         t2 = 100 ** 2 * np.sum(x[k:] ** 2)
         return t1 + t2
 
