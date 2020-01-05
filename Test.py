@@ -4,13 +4,13 @@ import BasicCuckooSearch as BCS
 import ParameterEvolutionCuckooSearch as PECS
 import RandomParameterCuckooSearch as RPCS
 
-repeat = 20
+repeat = 15
 
-problems = ["k-tablet", "different_power", "griewank", "xin_she"]
+problems = ["k_tablet", "different_power", "griewank", "xin_she"]
 n_var = 50
 
 n_pop = 20
-max_eval = 800000
+max_eval = 4000000
 max_gen = int (max_eval / n_pop)
 
 alpha_1 = 1e-09
