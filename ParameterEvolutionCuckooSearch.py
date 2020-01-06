@@ -5,9 +5,9 @@ from Population import initialize, evaluate
 from LevyVector import mantegna, gutowski, fix_bound
 
 def optimize(problem, n_var, n_pop, max_gen, max_eval,
-             alpha_1, levy_alg, pa,
-             betal, betau, step_gen,
-             alpha_2, beta_2,
+             alpha_1, levy_alg, pa_1,
+             betal, betau, step_gen, indicator,
+             alpha_2, beta_2, pa_2,
              seed):
     # set numpy seed
     np.random.seed()
@@ -18,6 +18,9 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
     if levy_alg == "mantegna": levy = mantegna
     if levy_alg == "gutowski": levy = gutowski
     betas = np.random.uniform(betal, betau, n_pop)
+    betas_old = betas[:]
+    
+    # initialize evaluation counter
     n_eval = 0
 
     # initialize population
@@ -30,6 +33,8 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
 
     # initialize indicator at 0
     dF = np.zeros(n_pop)
+    dF_old = np.zeros(n_pop)
+    dF_trial = np.zeros(n_pop)
 
     # enter generation loop
     for c_gen in range(1, max_gen):
@@ -55,25 +60,55 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 F[j] = fi_
 
                 # calculate indicator
-                df = np.abs(fi_ - fj)
+                if indicator == "df":
+                    df = np.abs(fi_ - fj)
+                elif indicator == "df/f":
+                    df = np.abs(fi_ - fj) / (fj + 1e-14)
+                else:
+                    df = np.abs(fi_ - fj) / (fj + 1e-14)
                 dF[i] += df
 
             n_eval += 1
             if n_eval >= max_eval: return X, F
 
-        # evolve parameters
+        # generate trial parameters
         if c_gen % step_gen == step_gen - 1:
 
             # get best parameter
             beta_best = betas[np.argmax(dF)]
 
-            # update parameters
+            # save original parameters old parameters
+            betas_old = betas[:]
+
+            # update parameters to trial parameters
             betas = betas + levy(alpha_2, beta_2, n_pop) * (beta_best - betas)
             betas = fix_bound(betas, betal, betau)
+
+            # randomly abandon worst individuals
+            sorted_idx = sorted(np.arange(n_pop), key=lambda k: dF[k])
+            worst_idx = sorted_idx[- int (n_pop * pa_2):]
+            for i in worst_idx:
+                betas[i] = np.random.uniform(betal, betau)
+
+            # clear indicator
+            dF_old = dF / (4 * step_gen / 5)
+            dF = dF * 0
+        
+        # evaluate trial parameters
+        if c_gen % step_gen == int(step_gen / 5) - 1:
+            
+            # compute indicator for trial parameters
+            dF_trial = dF / (step_gen / 5)
+
+            # change if trial parameters are worse
+            betas[dF_trial < dF_old] = betas_old[dF_trial < dF_old]
+            
+            # clear indicator
+            dF = dF * 0
         
         # randomly abandon worst individuals
         sorted_idx = sorted(np.arange(n_pop), key=lambda k: F[k])
-        worst_idx = sorted_idx[- int (n_pop * pa):]
+        worst_idx = sorted_idx[- int (n_pop * pa_1):]
         for i in worst_idx:
             X[i] = np.random.uniform(xl, xu, n_var)
             F[i] = f(X[i])
@@ -83,6 +118,6 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
         
         dF[worst_idx] = 0
 
-        # print(c_gen, min(F), np.mean(betas))
+        print(c_gen, "{:.3e}".format(min(F)), "{:.2f}".format(np.mean(dF)), "{:.2f}".format(min(betas)), "{:.2f}".format(np.median(betas)))
     
     return X, F
