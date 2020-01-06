@@ -69,7 +69,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 dF[i] += df
 
             n_eval += 1
-            if n_eval >= max_eval: return X, F
+            if n_eval >= max_eval or min(F) == 0.0: return X, F
 
         # generate trial parameters
         if c_gen % step_gen == step_gen - 1:
@@ -114,7 +114,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
             F[i] = f(X[i])
             
             n_eval += 1
-            if n_eval >= max_eval: return X, F
+            if n_eval >= max_eval or min(F) == 0.0: return X, F
         
         dF[worst_idx] = 0
 

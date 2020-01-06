@@ -6,7 +6,7 @@ import RandomParameterCuckooSearch as RPCS
 
 repeat = 15
 
-problems = ["sphere", "ackley", "rastrigin", "rosenbrock"]
+problems = ["rastrigin", "ackley", "shpere", "rosenbrock"]
 n_var = 50
 
 n_pop = 20
