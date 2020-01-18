@@ -51,18 +51,16 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 F[j] = fi_
             
             n_eval += 1
-            if n_eval >= max_eval: return X, F
+            if n_eval >= max_eval or min(F) == 0.0: return X, F
 
-        # randomly abandon worst individuals
-        sorted_idx = sorted(np.arange(n_pop), key=lambda k: F[k])
-        worst_idx = sorted_idx[- int (n_pop * pa):]
-        for i in worst_idx:
-            X[i] = np.random.uniform(xl, xu, n_var)
-            F[i] = f(X[i])
+        #randomly abandon worst individuals
+        idx_sorted = sorted(np.arange(n_pop), key=lambda k: - F[k])
+        for i in range(n_pop):
+            if i in idx_sorted[:int (n_pop * pa)]:
+                X[i] = np.random.uniform(xl, xu, n_var)
+                F[i] = f(X[i])
+                
+                n_eval += 1
+                if n_eval >= max_eval or min(F) == 0.0: return X, F
             
-            n_eval += 1
-            if n_eval >= max_eval: return X, F
-        
-        # print(c_gen, min(F))
-    
     return X, F

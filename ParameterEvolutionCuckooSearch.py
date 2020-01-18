@@ -7,10 +7,13 @@ from LevyVector import mantegna, gutowski, fix_bound
 def optimize(problem, n_var, n_pop, max_gen, max_eval,
              alpha_1, levy_alg, pa_1,
              betal, betau, step_gen, indicator,
-             alpha_2, beta_2, pa_2,
-             seed):
+             alpha_2, beta_2,
+             seed, record):
     # set numpy seed
     np.random.seed()
+
+    # set record files
+    record_file = open(record, "a")
 
     # initialize parameters
     f = problem.f
@@ -54,6 +57,8 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
             j = np.random.choice(n_pop)
             fj = copy.copy(F[j])
 
+            fi = copy.copy(F[i])
+
             # compare offspring with picked individual
             if fi_ <= fj:
                 X[j] = xi_
@@ -61,63 +66,60 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
 
                 # calculate indicator
                 if indicator == "df":
-                    df = np.abs(fi_ - fj)
+                    df = np.abs(fi_ - fi)
                 elif indicator == "df/f":
-                    df = np.abs(fi_ - fj) / (fj + 1e-14)
+                    df = np.abs(fi_ - fi) / (fi + 1e-14)
                 else:
-                    df = np.abs(fi_ - fj) / (fj + 1e-14)
+                    df = np.abs(fi_ - fi) / (fi + 1e-14)
                 dF[i] += df
 
             n_eval += 1
             if n_eval >= max_eval or min(F) == 0.0: return X, F
 
         # generate trial parameters
-        if c_gen % step_gen == step_gen - 1:
+        if c_gen % step_gen == int (step_gen / 2):
 
-            # get best parameter
+            # get best beta
             beta_best = betas[np.argmax(dF)]
 
             # save original parameters old parameters
             betas_old = betas[:]
 
             # update parameters to trial parameters
-            betas = betas + levy(alpha_2, beta_2, n_pop) * (beta_best - betas)
+            betas = betas + levy(alpha_2, beta_2, n_pop)
             betas = fix_bound(betas, betal, betau)
 
-            # randomly abandon worst individuals
-            sorted_idx = sorted(np.arange(n_pop), key=lambda k: dF[k])
-            worst_idx = sorted_idx[- int (n_pop * pa_2):]
-            for i in worst_idx:
-                betas[i] = np.random.uniform(betal, betau)
-
             # clear indicator
-            dF_old = dF / (4 * step_gen / 5)
+            dF_old = dF /  (step_gen / 2)
             dF = dF * 0
         
         # evaluate trial parameters
-        if c_gen % step_gen == int(step_gen / 5) - 1:
+        if c_gen % step_gen == 0:
             
             # compute indicator for trial parameters
-            dF_trial = dF / (step_gen / 5)
+            dF_trial = dF / (step_gen / 2)
 
             # change if trial parameters are worse
-            betas[dF_trial < dF_old] = betas_old[dF_trial < dF_old]
-            
+            betas[dF_trial <= dF_old] = betas_old[dF_trial <= dF_old]
+
             # clear indicator
             dF = dF * 0
         
-        # randomly abandon worst individuals
-        sorted_idx = sorted(np.arange(n_pop), key=lambda k: F[k])
-        worst_idx = sorted_idx[- int (n_pop * pa_1):]
-        for i in worst_idx:
-            X[i] = np.random.uniform(xl, xu, n_var)
-            F[i] = f(X[i])
-            
-            n_eval += 1
-            if n_eval >= max_eval or min(F) == 0.0: return X, F
+        #randomly abandon worst individuals
+        idx_sorted = sorted(np.arange(n_pop), key=lambda k: - F[k])
+        for i in range(n_pop):
+            if i in idx_sorted[:int (n_pop * pa_1)]:
+                X[i] = np.random.uniform(xl, xu, n_var)
+                F[i] = f(X[i])
+                
+                n_eval += 1
+                if n_eval >= max_eval or min(F) == 0.0: return X, F
         
-        dF[worst_idx] = 0
+        record_file.write("{},{:.3e},{:.3e},".format(c_gen, min(F), np.mean(F)))
+        for item in betas:
+            record_file.write("{:.1f},".format(item))
+        record_file.write("\n")
 
-        print(c_gen, "{:.3e}".format(min(F)), "{:.2f}".format(np.mean(dF)), "{:.2f}".format(min(betas)), "{:.2f}".format(np.median(betas)))
+    record_file.close()
     
     return X, F
