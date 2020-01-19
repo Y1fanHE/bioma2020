@@ -2,7 +2,7 @@ import numpy as np
 import copy
 
 from Population import initialize, evaluate
-from LevyVector import mantegna, gutowski, fix_bound
+from LevyVector import default, mantegna, gutowski, fix_bound
 
 def optimize(problem, n_var, n_pop, max_gen, max_eval,
              alpha_1, levy_alg, pa_1,
@@ -19,6 +19,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
     # initialize parameters
     f = problem.f
     xl, xu = problem.boundaries
+    if levy_alg == "default": levy = default
     if levy_alg == "mantegna": levy = mantegna
     if levy_alg == "gutowski": levy = gutowski
     betas = np.random.uniform(betal, betau, n_pop)

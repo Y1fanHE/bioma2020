@@ -2,7 +2,7 @@ import numpy as np
 import copy
 
 from Population import initialize, evaluate
-from LevyVector import mantegna, gutowski, fix_bound
+from LevyVector import default, mantegna, gutowski, fix_bound
 
 def optimize(problem, n_var, n_pop, max_gen, max_eval,
              alpha, beta, levy_alg, pa,
@@ -14,6 +14,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
     # initialize parameters
     f = problem.f
     xl, xu = problem.boundaries
+    if levy_alg == "default": levy = default
     if levy_alg == "mantegna": levy = mantegna
     if levy_alg == "gutowski": levy = gutowski
     n_eval = 0
@@ -27,7 +28,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
     # print(0, min(F))
 
     # enter generation loop
-    for c_gen in range(1, max_gen):
+    for _ in range(1, max_gen):
 
         # traverse population
         for i in range(n_pop):

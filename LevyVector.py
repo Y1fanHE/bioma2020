@@ -1,6 +1,18 @@
 import numpy as np
 from math import gamma as G
 
+def default(alpha, beta, n_var):
+    if beta < 0:
+        print("Error: Stable distribution requires a beta between 0.3 to 1.99.")
+        return None
+    elif beta < 0.3:
+        return gutowski(alpha, beta, n_var)
+    elif beta <= 1.99:
+        return mantegna(alpha, beta, n_var)
+    else:
+        print("Error: Stable distribution requires a beta between 0.3 to 1.99.")
+        return None
+
 def mantegna(alpha, beta, n_var):
     if beta < 0.3 or beta > 1.99:
         print("Error: Mantegna's algorithm requires a beta between 0.3 to 1.99.")
