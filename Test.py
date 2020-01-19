@@ -23,7 +23,6 @@ step_gen = 200
 indicator = "df/f"
 alpha_2 = 1.0
 beta_2 = 1.0
-pa_2 = 0.2
 
 for problem_name in problems:
 
@@ -48,9 +47,9 @@ for problem_name in problems:
                       alpha_1, levy_alg, pa_1,
                       betal, betau, step_gen, indicator,
                       alpha_2, beta_2,
-                      seed, f"./tmp/{problem_name}_{seed}.csv")
+                      seed, f"./tmp/{problem_name}/{seed}.csv")
 
         # print results of three algorithms with the seed
         print("", "{:>5}".format(seed),
-            "{:>10.3e}".format(min(F)), "",
-            sep="|")
+              "{:>10.3e}".format(min(F)), "",
+              sep="|")

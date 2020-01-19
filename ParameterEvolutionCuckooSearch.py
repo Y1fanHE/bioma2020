@@ -13,7 +13,8 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
     np.random.seed()
 
     # set record files
-    record_file = open(record, "a")
+    if record != None:
+        record_file = open(record, "a")
 
     # initialize parameters
     f = problem.f
@@ -35,12 +36,19 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
     # print(0, min(F))
 
     # initialize indicator at 0
-    dF = np.zeros(n_pop)
-    dF_old = np.zeros(n_pop)
-    dF_trial = np.zeros(n_pop)
+    I = np.zeros(n_pop)
+    I_old = np.zeros(n_pop)
+    I_trial = np.zeros(n_pop)
 
     # enter generation loop
     for c_gen in range(1, max_gen):
+
+        # record fitness and parameters by generations
+        if record != None:
+            record_file.write("{},{:.3e},{:.3e},".format(c_gen, min(F), np.mean(F)))
+            for item in betas:
+                record_file.write("{:.1f},".format(item))
+            record_file.write("\n")
 
         # traverse population
         for i in range(n_pop):
@@ -66,21 +74,18 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
 
                 # calculate indicator
                 if indicator == "df":
-                    df = np.abs(fi_ - fi)
+                    tmp = np.abs(fi_ - fi)
                 elif indicator == "df/f":
-                    df = np.abs(fi_ - fi) / (fi + 1e-14)
+                    tmp = np.abs(fi_ - fi) / (fi + 1e-14)
                 else:
-                    df = np.abs(fi_ - fi) / (fi + 1e-14)
-                dF[i] += df
+                    tmp = np.abs(fi_ - fi) / (fi + 1e-14)
+                I[i] += tmp
 
             n_eval += 1
             if n_eval >= max_eval or min(F) == 0.0: return X, F
 
         # generate trial parameters
         if c_gen % step_gen == int (step_gen / 2):
-
-            # get best beta
-            beta_best = betas[np.argmax(dF)]
 
             # save original parameters old parameters
             betas_old = betas[:]
@@ -90,20 +95,20 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
             betas = fix_bound(betas, betal, betau)
 
             # clear indicator
-            dF_old = dF /  (step_gen / 2)
-            dF = dF * 0
+            I_old = I /  (step_gen / 2)
+            I = I * 0
         
         # evaluate trial parameters
         if c_gen % step_gen == 0:
             
             # compute indicator for trial parameters
-            dF_trial = dF / (step_gen / 2)
+            I_trial = I / (step_gen / 2)
 
             # change if trial parameters are worse
-            betas[dF_trial <= dF_old] = betas_old[dF_trial <= dF_old]
+            betas[I_trial <= I_old] = betas_old[I_trial <= I_old]
 
             # clear indicator
-            dF = dF * 0
+            I = I * 0
         
         #randomly abandon worst individuals
         idx_sorted = sorted(np.arange(n_pop), key=lambda k: - F[k])
@@ -114,12 +119,8 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 
                 n_eval += 1
                 if n_eval >= max_eval or min(F) == 0.0: return X, F
-        
-        record_file.write("{},{:.3e},{:.3e},".format(c_gen, min(F), np.mean(F)))
-        for item in betas:
-            record_file.write("{:.1f},".format(item))
-        record_file.write("\n")
 
-    record_file.close()
+    if record != None:
+        record_file.close()
     
     return X, F
