@@ -9,6 +9,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
              betal, betau, step_gen, indicator,
              alpha_2, beta_2,
              seed, record):
+
     # set numpy seed
     np.random.seed()
 
@@ -19,9 +20,14 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
     # initialize parameters
     f = problem.f
     xl, xu = problem.boundaries
-    if levy_alg == "default": levy = default
-    if levy_alg == "mantegna": levy = mantegna
-    if levy_alg == "gutowski": levy = gutowski
+    if levy_alg == "default":
+        levy = default
+    elif levy_alg == "mantegna":
+        levy = mantegna
+    elif levy_alg == "gutowski":
+        levy = gutowski
+    else:
+        levy = default
     betas = np.random.uniform(betal, betau, n_pop)
     betas_old = betas[:]
     
@@ -98,7 +104,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
             # clear indicator
             I_old = I /  (step_gen / 2)
             I = I * 0
-        
+
         # evaluate trial parameters
         if c_gen % step_gen == 0:
             
@@ -110,12 +116,16 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
 
             # clear indicator
             I = I * 0
-        
-        #randomly abandon worst individuals
+
+        # randomly abandon worst individuals
         idx_sorted = sorted(np.arange(n_pop), key=lambda k: - F[k])
         for i in range(n_pop):
             if i in idx_sorted[:int (n_pop * pa_1)]:
-                X[i] = np.random.uniform(xl, xu, n_var)
+
+                # do a levy flight on worst individuals
+                xi_ = X[i] + levy(alpha_1, betas[i], n_var)
+                xi_ = fix_bound(xi_, xl, xu)
+                X[i] = xi_
                 F[i] = f(X[i])
                 
                 n_eval += 1
@@ -123,5 +133,5 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
 
     if record != None:
         record_file.close()
-    
+
     return X, F

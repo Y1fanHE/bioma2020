@@ -31,7 +31,7 @@ def gutowski(alpha, beta, n_var):
         return None
     u = np.random.uniform(0, 1, n_var)
     l = u ** (- 1 / beta) - 1
-    sgn = np.random.randint(0, 2, n_var)
+    sgn = np.random.choice([1, -1], n_var)
     l = alpha * sgn * l
     return l
 
