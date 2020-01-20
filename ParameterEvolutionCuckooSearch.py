@@ -136,7 +136,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 if n_eval >= max_eval or min(F) == 0.0: return X, F
 
         # set convergence criteria
-        if np.abs(h_best - min(F)) <= 1e-14:
+        if np.abs(h_best - min(F)) >= 1e-14:
             h_best = min(F)
             n_conv = 0
         else:
