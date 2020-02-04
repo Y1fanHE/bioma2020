@@ -22,7 +22,13 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
         levy = gutowski
     else:
         levy = default
+
+    # initialize evaluation counter
     n_eval = 0
+
+    # initialize convergence counter
+    n_conv = 0
+    h_best = np.inf
 
     # initialize population
     X = np.random.uniform(xl, xu, (n_pop, n_var))
@@ -57,7 +63,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 F[j] = fi_
             
             n_eval += 1
-            if n_eval >= max_eval or min(F) == 0.0: return X, F
+            if n_eval >= max_eval or min(F) <= 0.0: return X, F
 
         # randomly abandon worst individuals
         idx_sorted = sorted(np.arange(n_pop), key=lambda k: - F[k])
@@ -71,7 +77,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 F[i] = f(X[i])
                 
                 n_eval += 1
-                if n_eval >= max_eval or min(F) == 0.0: return X, F
+                if n_eval >= max_eval or min(F) <= 0.0: return X, F
 
         # set convergence criteria
         if np.abs(h_best - min(F)) >= 1e-14:

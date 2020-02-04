@@ -31,8 +31,8 @@ class griewank():
 
 class levy():
     def __init__(self):
-        print("This is levy price function.")
-        self.boundaries = np.array([- 10, 10])
+        print("This is Levy Price function.")
+        self.boundaries = np.array([-10, 10])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(0))
 
@@ -46,7 +46,7 @@ class levy():
 class rastrigin():
     def __init__(self):
         print("This is Rastrigin function.")
-        self.boundaries = np.array([-5.12, 5.12])
+        self.boundaries = np.array([-5, 5])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(0))
 
@@ -64,10 +64,37 @@ class schwefel():
         print("- minimum is {}".format(0))
 
     def f(self, x):
-        return 418.9829 * len(x) - np.sum(x * np.sin( np.sqrt( np.abs(x) ) ) )
+        return 418.9828872721626 * len(x) - np.sum(x * np.sin( np.sqrt( np.abs(x) ) ) )
+
+class xin_she():
+    def __init__(self):
+        print("This is Xin-She Yang function.")
+        self.boundaries = np.array([-2 * np.pi, 2 * np.pi])
+        print("- boundary is {}".format(self.boundaries))
+        print("- minimum is {}".format(0))
+
+    def f(self, x):
+        t1 = np.sum( np.abs(x) )
+        e1 = - np.sum( np.sin(x ** 2) )
+        t2 = np.exp(e1)
+        return t1 * t2
+
+class schaffer():
+    def __init__(self):
+        print("This is Schaffer function.")
+        self.boundaries = np.array([-100, 100])
+        print("- boundary is {}".format(self.boundaries))
+        print("- minimum is {}".format(0))
+
+    def f(self, x):
+        val = 0
+        for i in range(len(x)-1):
+            t1 = (x[i]**2 + x[i+1]**2)**0.25
+            t2 = np.sin(50*(x[i]**2 + x[i+1]**2)**0.1)**2+1
+            val += t1 * t2
+        return val
 
 # bowl-shaped
-
 class perm():
     def __init__(self, n_dim = 10):
         print("This is Perm function.")
@@ -86,8 +113,8 @@ class perm():
 
 class rotated_hyper_ellipsoid():
     def __init__(self):
-        print("This is rotated hyper ellipsoid function.")
-        self.boundaries = np.array([-65.536, 65.536])
+        print("This is Rotated Hyper Ellipsoid function.")
+        self.boundaries = np.array([-65, 65])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(0))
 
@@ -100,7 +127,7 @@ class rotated_hyper_ellipsoid():
 class sphere():
     def __init__(self):
         print("This is Sphere function.")
-        self.boundaries = np.array([-5.12, 5.12])
+        self.boundaries = np.array([-5, 5])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(0))
 
@@ -109,7 +136,7 @@ class sphere():
 
 class different_power():
     def __init__(self):
-        print("This is Sum of different power function.")
+        print("This is Sum of Different Power function.")
         self.boundaries = np.array([-1, 1])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(0))
@@ -122,8 +149,8 @@ class different_power():
 
 class weighted_sphere():
     def __init__(self):
-        print("This is Weighted Sphere function or hyper ellipsodic function.")
-        self.boundaries = np.array([-5.12, 5.12])
+        print("This is Weighted Sphere function / Hyper Ellipsodic function.")
+        self.boundaries = np.array([-5, 5])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(0))
 
@@ -132,8 +159,8 @@ class weighted_sphere():
         return np.sum(val)
 
 class trid():
-    def __init__(self, n_dim = 10):
-        print("This is rotated trid function.")
+    def __init__(self, n_dim = 50):
+        print("This is Rotated Trid function.")
         self.boundaries = np.array([- n_dim ** 2, n_dim ** 2])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(- n_dim * (n_dim + 4) * (n_dim - 1) / 6))
@@ -145,11 +172,10 @@ class trid():
         return t1 + t2
 
 # plate-shaped
-
 class zakharov():
     def __init__(self):
         print("This is Zakharov function.")
-        self.boundaries = np.array([-5, 10])
+        self.boundaries = np.array([-5, 5])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(0))
 
@@ -162,11 +188,10 @@ class zakharov():
         return t1 + t2 + t3
 
 # valley-shaped
-
 class dixon_price():
     def __init__(self):
-        print("This is rotated dixon price function.")
-        self.boundaries = np.array([- 10, 10])
+        print("This is Rotated Dixon Price function.")
+        self.boundaries = np.array([-10, 10])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(0))
 
@@ -177,10 +202,10 @@ class dixon_price():
         t2 = np.sum( c * (2 * x[1:n_dim] ** 2 - x[0:n_dim - 1] ) ** 2 )
         return t1 + t2
 
-class rosenbrock():
+class rosenbrock_chain():
     def __init__(self):
-        print("This is Rosenbrock function.")
-        self.boundaries = np.array([-5, 10])
+        print("This is Rosenbrock-Chain function.")
+        self.boundaries = np.array([-5, 5])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(0))
 
@@ -192,24 +217,24 @@ class rosenbrock():
             val += t1 + t2
         return val
 
-# other
-
-class styblinski():
+class rosenbrock_star():
     def __init__(self):
-        print("This is Styblinski-Tang function.")
+        print("This is Rosenbrock-Star function.")
         self.boundaries = np.array([-5, 5])
         print("- boundary is {}".format(self.boundaries))
-        print("- minimum is {} times n_dim".format(-39.166165))
+        print("- minimum is {}".format(0))
 
     def f(self, x):
-        t1 = np.sum(x ** 4)
-        t2 = - 16 * np.sum(x ** 2)
-        t3 = 5 * np.sum(x)
-        return 0.5 * (t1 + t2 + t3)
+        val = 0
+        for i in range(1, len(x)):
+            t1 = 100 * (x[0] - x[i] ** 2) ** 2
+            t2 = (x[i] - 1) ** 2
+            val += t1 + t2
+        return val
 
 class k_tablet():
     def __init__(self):
-        print("This is k-tablet function.")
+        print("This is k-Tablet function.")
         self.boundaries = np.array([-5.12, 5.12])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(0))
@@ -220,15 +245,16 @@ class k_tablet():
         t2 = 100 ** 2 * np.sum(x[k:] ** 2)
         return t1 + t2
 
-class xin_she():
+# other
+class styblinski():
     def __init__(self):
-        print("This is Xin-She Yang function.")
-        self.boundaries = np.array([-2 * np.pi, 2 * np.pi])
+        print("This is Styblinski-Tang function.")
+        self.boundaries = np.array([-5, 5])
         print("- boundary is {}".format(self.boundaries))
         print("- minimum is {}".format(0))
 
     def f(self, x):
-        t1 = np.sum( np.abs(x) )
-        e1 = - np.sum( np.sin(x ** 2) )
-        t2 = np.exp(e1)
-        return t1 * t2
+        t1 = np.sum(x ** 4)
+        t2 = - 16 * np.sum(x ** 2)
+        t3 = 5 * np.sum(x)
+        return 39.1661657037715 * len(x) + 0.5 * (t1 + t2 + t3)

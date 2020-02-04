@@ -83,17 +83,17 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 X[j] = xi_
                 F[j] = fi_
 
-                # calculate indicator
-                if indicator == "df":
-                    tmp = np.abs(fi_ - fi)
-                elif indicator == "df/f":
-                    tmp = np.abs(fi_ - fi) / (fi + 1e-14)
-                else:
-                    tmp = np.abs(fi_ - fi) / (fi + 1e-14)
-                I[i] += tmp
+            # calculate indicator
+            if indicator == "df":
+                tmp = np.max([fi - fi_, 0])
+            elif indicator == "df/f":
+                tmp = np.max([fi - fi_, 0]) / (fi + 1e-14)
+            else:
+                tmp = np.max([fi - fi_, 0]) / (fi + 1e-14)
+            I[i] += tmp
 
             n_eval += 1
-            if n_eval >= max_eval or min(F) == 0.0: return X, F
+            if n_eval >= max_eval or min(F) <= 0.0: return X, F
 
         # generate trial parameters
         if c_gen % step_gen == int (step_gen / 2):
@@ -133,7 +133,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 F[i] = f(X[i])
                 
                 n_eval += 1
-                if n_eval >= max_eval or min(F) == 0.0: return X, F
+                if n_eval >= max_eval or min(F) <= 0.0: return X, F
 
         # set convergence criteria
         if np.abs(h_best - min(F)) >= 1e-14:

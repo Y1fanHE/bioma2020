@@ -17,8 +17,10 @@ def set_problem(problem_name):
         return SOP.perm()
     elif problem_name == "rastrigin":
         return SOP.rastrigin()
-    elif problem_name == "rosenbrock":
-        return SOP.rosenbrock()
+    elif problem_name == "rosenbrock_chain":
+        return SOP.rosenbrock_chain()
+    elif problem_name == "rosenbrock_star":
+        return SOP.rosenbrock_star()
     elif problem_name == "rotated_hyper_ellipsoid":
         return SOP.rotated_hyper_ellipsoid()
     elif problem_name == "schwefel":
@@ -35,6 +37,8 @@ def set_problem(problem_name):
         return SOP.xin_she()
     elif problem_name == "zakharov":
         return SOP.zakharov()
+    elif problem_name == "schaffer":
+        return SOP.schaffer()
     else:
         print("No such function!")
         return None
