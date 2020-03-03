@@ -71,11 +71,9 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
             if i in idx_sorted[:int (n_pop * pa)]:
 
                 # do a levy flight on worst individuals
-                # xi_ = X[i] + levy(alpha, beta, n_var)
-                # xi_ = fix_bound(xi_, xl, xu)
+                xi_ = X[i] + levy(alpha, beta, n_var)
+                xi_ = fix_bound(xi_, xl, xu)
 
-                # reinitialize the worst individuals
-                xi_ = np.random.uniform(xl, xu, n_var)
                 X[i] = xi_
                 F[i] = f(X[i])
                 

@@ -23,7 +23,7 @@ levy_alg = "default"
 pa_1 = 0.1
 
 betal, betau = 0.1, 1.9 # boundary of stability parameters
-step_gen = 200
+step_gen = 100
 indicator = "df/f"
 alpha_2 = 0.1 # same as JADE
 beta_2 = 1.0 # same as JADE
