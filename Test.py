@@ -7,9 +7,9 @@ import JADEForCuckooSearch as JACS
 import ParameterEvolutionCuckooSearch as PECS
 
 repeat = 31
+epsilon = 1e-05
 
-problems = ["sphere", "k_tablet", "different_power", "rosenbrock_chain",
-            "ackley", "rastrigin", "griewank", "rosenbrock_star"]
+problems = ["ackley", "rastrigin", "griewank", "levy", "schwefel", "xin-she", "schaffer"]
 
 n_var = 50
 
@@ -68,7 +68,7 @@ for problem_name, beta in zip(problems, betas):
                       alpha_1, levy_alg, pa_1,
                       betal, betau, step_gen, indicator,
                       alpha_2, beta_2,
-                      seed, fname)
+                      epsilon, seed, fname)
         
         # set file name of record for JACS
         fname = f"./tmp/{problem_name}/JACS_{seed}.csv"
@@ -78,23 +78,23 @@ for problem_name, beta in zip(problems, betas):
         JACS.optimize(problem, n_var, n_pop, max_gen, max_eval,
                       alpha_1, levy_alg, pa_1,
                       (betal + betau) / 2, betal, betau, c,
-                      seed, fname)
+                      epsilon, seed, fname)
 
         # Random Parameter Cuckoo Search
         X3, F3 =\
         RPCS.optimize(problem, n_var, n_pop, max_gen, max_eval,
                       alpha_1, betal, betau, levy_alg, pa_1,
-                      seed)
+                      epsilon, seed)
 
         # Basic Cuckoo Search
         X4, F4 =\
         BACS.optimize(problem, n_var, n_pop, max_gen, max_eval,
                       alpha_1, beta, levy_alg, pa_1,
-                      seed)
+                      epsilon, seed)
 
         # print results of three algorithms with the seed
         print("", "{:>5}".format(seed),
-              "{:>10.3e}".format(min(F2)),
+              "{:>10.3e}".format(min(F1)),
               "{:>10.3e}".format(min(F2)),
               "{:>10.3e}".format(min(F3)),
               "{:>10.3e}".format(min(F4)),

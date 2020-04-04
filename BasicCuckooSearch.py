@@ -6,7 +6,7 @@ from LevyVector import default, mantegna, gutowski, fix_bound
 
 def optimize(problem, n_var, n_pop, max_gen, max_eval,
              alpha, beta, levy_alg, pa,
-             seed):
+             epsilon, seed):
 
     # set numpy seed
     np.random.seed(seed)
@@ -62,7 +62,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 F[j] = fi_
             
             n_eval += 1
-            if n_eval >= max_eval or min(F) <= 0.0: return X, F
+            if n_eval >= max_eval or min(F) <= epsilon: return X, F
 
         # randomly abandon worst individuals
         idx_sorted = sorted(np.arange(n_pop), key=lambda k: - F[k])
@@ -77,10 +77,10 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 F[i] = f(X[i])
                 
                 n_eval += 1
-                if n_eval >= max_eval or min(F) <= 0.0: return X, F
+                if n_eval >= max_eval or min(F) <= epsilon: return X, F
 
         # set convergence criteria
-        if np.abs(h_best - min(F)) >= 1e-14:
+        if np.abs(h_best - min(F)) >= epsilon * 0.01:
             h_best = min(F)
             n_conv = 0
         else:

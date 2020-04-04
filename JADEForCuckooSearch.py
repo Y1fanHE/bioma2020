@@ -7,7 +7,7 @@ from LevyVector import default, mantegna, gutowski, fix_bound
 def optimize(problem, n_var, n_pop, max_gen, max_eval,
              alpha, levy_alg, pa,
              beta_mu, beta_l, beta_u, c,
-             seed, record):
+             epsilon, seed, record):
 
     # set numpy seed
     np.random.seed(seed)
@@ -84,7 +84,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 S_beta.append(beta)
 
             n_eval += 1
-            if n_eval >= max_eval or min(F) <= 0.0: return X, F
+            if n_eval >= max_eval or min(F) <= epsilon: return X, F
 
         # update mean of parameters
         if len(S_beta) > 0:
@@ -104,10 +104,10 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 F[i] = f(X[i])
                 
                 n_eval += 1
-                if n_eval >= max_eval or min(F) <= 0.0: return X, F
+                if n_eval >= max_eval or min(F) <= epsilon: return X, F
 
         # set convergence criteria
-        if np.abs(h_best - min(F)) >= 1e-14:
+        if np.abs(h_best - min(F)) >= epsilon * 0.01:
             h_best = min(F)
             n_conv = 0
         else:
