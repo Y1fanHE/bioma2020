@@ -1,7 +1,7 @@
 import numpy as np
 
 def initialize(n_pop, n_var, xl, xu):
-    X = np.random.uniform(xl, xu, (n_pop, n_var))
+    X = np.round(np.random.uniform(xl, xu, (n_pop, n_var)), 8)
     return X
 
 def evaluate(X, f):

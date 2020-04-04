@@ -7,7 +7,7 @@ import JADEForCuckooSearch as JACS
 import ParameterEvolutionCuckooSearch as PECS
 
 repeat = 31
-epsilon = 1e-05
+epsilon = 1e-10
 
 problems = ["ackley", "rastrigin", "griewank", "levy", "schwefel", "xin-she", "schaffer"]
 

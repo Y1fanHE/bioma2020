@@ -64,7 +64,7 @@ class schwefel():
         print("- minimum is {}".format(0))
 
     def f(self, x):
-        return 418.9828872721626 * len(x) - np.sum(x * np.sin( np.sqrt( np.abs(x) ) ) )
+        return 418.9828872724339 - np.sum(x * np.sin( np.sqrt( np.abs(x) ) ) )
 
 class xin_she():
     def __init__(self):
@@ -257,4 +257,4 @@ class styblinski():
         t1 = np.sum(x ** 4)
         t2 = - 16 * np.sum(x ** 2)
         t3 = 5 * np.sum(x)
-        return 39.1661657037715 * len(x) + 0.5 * (t1 + t2 + t3)
+        return 39.16599 * len(x) + 0.5 * (t1 + t2 + t3)
