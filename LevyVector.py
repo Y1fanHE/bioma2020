@@ -36,5 +36,5 @@ def gutowski(alpha, beta, n_var):
     return l
 
 def fix_bound(x, xl, xu):
-    x = np.round(np.clip(x, xl, xu), 8)
+    x = np.round(np.clip(x, xl, xu), 14)
     return x

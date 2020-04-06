@@ -64,6 +64,7 @@ class schwefel():
         print("- minimum is {}".format(0))
 
     def f(self, x):
+        x = np.round(x, 13)
         return 418.9828872724339 - np.sum(x * np.sin( np.sqrt( np.abs(x) ) ) )
 
 class xin_she():

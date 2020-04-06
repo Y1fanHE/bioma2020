@@ -134,7 +134,15 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
         I_trial = I / step_gen
 
         # change if trial parameters are worse
-        betas[I_trial <= I_old] = betas_old[I_trial <= I_old]
+        # betas[I_trial <= I_old] = betas_old[I_trial <= I_old]
+
+        # compare with a random selected parameter
+        for i in range(n_pop):
+            j = np.random.choice(n_pop)
+            if I_trial[i] > I_old[j]:
+                betas[i] = betas[i]
+            else:
+                betas[i] = betas_old[j]
 
         # clear indicator
         I = I * 0

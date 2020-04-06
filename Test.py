@@ -7,9 +7,14 @@ import JADEForCuckooSearch as JACS
 import ParameterEvolutionCuckooSearch as PECS
 
 repeat = 31
-epsilon = 1e-10
+epsilon = 1e-14
 
-problems = ["ackley", "rastrigin", "griewank", "levy", "schwefel", "xin-she", "schaffer"]
+problems = [
+            "sphere", "rotated_hyper_ellipsoid", "different_power", "weighted_sphere",          # bowl shape
+            "dixon_price", "rosenbrock_chain", "rosenbrock_star", "k_tablet",                   # valley shape
+            "zakharov",                                                                         # plate shape
+            "ackley", "rastrigin", "griewank", "levy", "schwefel", "xin_she", "schaffer"        # many local optima
+           ]
 
 n_var = 50
 
