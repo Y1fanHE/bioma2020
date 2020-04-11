@@ -72,7 +72,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
             xr2 = copy.copy(X[r2])
 
             # de/curr-to-pbest/1 mutatoon
-            vi = xi + Fi * (xbest - xi + xr1 - xr2)
+            vi = np.clip( xi + Fi * (xbest - xi + xr1 - xr2), xl, xu )
 
             rand = np.random.uniform(0, 1, n_var)
             jrand = np.random.choice(n_var)
