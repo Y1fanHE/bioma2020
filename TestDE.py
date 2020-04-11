@@ -6,21 +6,26 @@ import ParameterEvolutionDifferentialEvolution as PEDE
 
 repeat = 31
 
+"""
 problems = [
             "sphere", "rotated_hyper_ellipsoid", "different_power", "weighted_sphere",          # bowl shape
             "dixon_price", "rosenbrock_chain", "rosenbrock_star", "k_tablet",                   # valley shape
             "zakharov",                                                                         # plate shape
             "ackley", "rastrigin", "griewank", "levy", "schwefel", "xin_she", "schaffer"        # many local optima
            ]
+"""
 
-problems = ["griewank"]
+problems = ["sphere", "rotated_hyper_ellipsoid", "different_power", "weighted_sphere"]
+problems = ["dixon_price", "rosenbrock_chain", "rosenbrock_star", "k_tablet"]
+problems = ["zakharov", "ackley", "rastrigin", "griewank"]
+problems = ["levy", "schwefel", "xin_she", "schaffer"]
 
 n_var = 30
 
 n_pop = 100
 max_eval = 300000
 max_gen = int (max_eval / n_pop)
-epsilon = 0
+epsilon = 1e-08
 
 Fl, Fu = 0, 1
 CRl, CRu = 0, 1
@@ -61,4 +66,7 @@ for problem_name in problems:
                           c,
                           epsilon, seed)
 
-        print(f"F: PEDE={min(F1)}, JADE={min(F2)}; n_eval: PEDE={n_eval1}, JADE={n_eval2}")
+        fname = f"./tmp/{problem_name}.csv"
+        f = open(fname, "a")
+        f.write(f"{seed},{min(F1)},{min(F2)},{n_eval1},{n_eval2}\n")
+        f.close()

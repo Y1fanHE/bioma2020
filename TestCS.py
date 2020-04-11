@@ -8,12 +8,19 @@ import ParameterEvolutionCuckooSearch as PECS
 
 repeat = 31
 
+"""
 problems = [
             "sphere", "rotated_hyper_ellipsoid", "different_power", "weighted_sphere",          # bowl shape
             "dixon_price", "rosenbrock_chain", "rosenbrock_star", "k_tablet",                   # valley shape
             "zakharov",                                                                         # plate shape
             "ackley", "rastrigin", "griewank", "levy", "schwefel", "xin_she", "schaffer"        # many local optima
            ]
+"""
+
+problems = ["sphere", "rotated_hyper_ellipsoid", "different_power", "weighted_sphere"]
+problems = ["dixon_price", "rosenbrock_chain", "rosenbrock_star", "k_tablet"]
+problems = ["zakharov", "ackley", "rastrigin", "griewank"]
+problems = ["levy", "schwefel", "xin_she", "schaffer"]
 
 n_var = 30
 
