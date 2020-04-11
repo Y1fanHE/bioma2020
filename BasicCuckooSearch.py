@@ -62,7 +62,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 F[j] = fi_
             
             n_eval += 1
-            if n_eval >= max_eval or min(F) <= epsilon: return X, F
+            if n_eval >= max_eval or min(F) <= epsilon: return X, F, n_eval
 
         # randomly abandon worst individuals
         idx_sorted = sorted(np.arange(n_pop), key=lambda k: - F[k])
@@ -77,7 +77,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
                 F[i] = f(X[i])
                 
                 n_eval += 1
-                if n_eval >= max_eval or min(F) <= epsilon: return X, F
+                if n_eval >= max_eval or min(F) <= epsilon: return X, F, n_eval
 
         # set convergence criteria
         if np.abs(h_best - min(F)) >= epsilon * 0.01:
@@ -86,6 +86,6 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
         else:
             n_conv += 1
             if n_conv >= 10000:
-                return X, F
+                return X, F, n_eval
 
-    return X, F
+    return X, F, n_eval

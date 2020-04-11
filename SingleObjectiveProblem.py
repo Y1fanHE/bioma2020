@@ -65,7 +65,7 @@ class schwefel():
 
     def f(self, x):
         x = np.round(x, 13)
-        return 418.9828872724339 - np.sum(x * np.sin( np.sqrt( np.abs(x) ) ) )
+        return 418.9828872724339*len(x) - np.sum(x * np.sin( np.sqrt( np.abs(x) ) ) )
 
 class xin_she():
     def __init__(self):
