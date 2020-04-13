@@ -60,8 +60,7 @@ def optimize(problem, n_var, n_pop, max_gen, max_eval,
             
             # select a parameter from cauchy distribution
             # beta = np.random.normal(beta_mu, 0.1)
-            beta = 0.1 * np.tan(np.random.uniform(-np.pi/2, np.pi/2)) + beta_mu
-            beta = fix_bound(beta, beta_l, beta_u)
+            beta = np.clip( np.random.standard_cauchy() * 0.1 + beta_mu, 0, 1 )
 
             # reproduce by Levy Flight
             xi = copy.copy(X[i])
