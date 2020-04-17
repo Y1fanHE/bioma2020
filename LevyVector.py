@@ -1,7 +1,7 @@
 import numpy as np
 from math import gamma as G
 
-def default(alpha, beta, n_var):
+def levy(alpha, beta, n_var):
     if beta < 0:
         print("Error: Stable distribution requires a beta between 0.3 to 1.99.")
         return None
@@ -34,7 +34,3 @@ def gutowski(alpha, beta, n_var):
     sgn = np.random.choice([1, -1], n_var)
     l = alpha * sgn * l
     return l
-
-def fix_bound(x, xl, xu):
-    x = np.round(np.clip(x, xl, xu), 14)
-    return x

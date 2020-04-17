@@ -1,0 +1,15 @@
+n_var : 30
+n_eval : 300000
+n_pop : 100
+diff_mode : "de/curr-to-pbest/1"
+F : [0.0, 0.5, 1.0]
+CR : [0.0, 0.5, 1.0]
+p : 0.05
+adapt_params : ["F", "CR"]
+adapt_strategy : "jade"
+indicator : "dfii/fi"
+n_step : 1
+epsilon : 0.0
+seed : [1003, 1004]
+is_print : True
+file_prefix : "JADE_"
