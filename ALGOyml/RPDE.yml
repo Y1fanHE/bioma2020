@@ -10,6 +10,6 @@ adapt_strategy : "random"
 indicator : "dfii/fi"
 n_step : 1
 epsilon : 0.0
-seed : [1003, 1004]
-is_print : True
+seed : [1000, 1031]
+is_print : False
 file_prefix : "RPDE_"
