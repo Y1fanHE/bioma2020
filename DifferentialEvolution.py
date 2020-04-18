@@ -181,11 +181,10 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
             if c_eval >= n_eval or min(Y) <= epsilon:                   # Termination criteria
                 if is_print == True:
                     print("{}, {:.2e}, {:.1f}, {:.1f}".                 # Print results on screen
-                        format(c_gen, min(Y), np.mean(Fs), np.mean(CRs)))
-                if file != "none":
+                          format(c_gen, min(Y), np.mean(Fs), np.mean(CRs)))
+                if file != "none":                                      # Write results to file
                     history = open(file, "a")
-                    history.write("{},{:.2e},{:.1f},{:.1f}\n".          # Write results to file
-                        format(c_gen, min(Y), np.mean(Fs), np.mean(CRs)))
+                    history.write(f"{c_gen},{min(Y)},{np.mean(Fs)},{np.mean(CRs)}\n")
                     history.close()
                 return X, Y, c_eval
 
@@ -195,10 +194,9 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
         if is_print == True:
             print("{}, {:.2e}, {:.1f}, {:.1f}".                         # Print results on screen
                   format(c_gen, min(Y), np.mean(Fs), np.mean(CRs)))
-        if file != "none":
+        if file != "none":                                              # Write results to file
             history = open(file, "a")
-            history.write("{},{:.2e},{:.1f},{:.1f}\n".                  # Write results to file
-                  format(c_gen, min(Y), np.mean(Fs), np.mean(CRs)))
+            history.write(f"{c_gen},{min(Y)},{np.mean(Fs)},{np.mean(CRs)}\n")
             history.close()
 
         ############

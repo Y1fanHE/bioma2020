@@ -170,11 +170,10 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
             if c_eval >= n_eval or min(F) <= epsilon:                   # Termination criteria
                 if is_print == True:
                     print("{}, {:.2e}, {:.1e}, {:.1f}".                 # Print results on screen
-                        format(c_gen, min(F), np.mean(ALPHA), np.mean(BETA)))
-                if file != "none":
+                          format(c_gen, min(F), np.mean(ALPHA), np.mean(BETA)))
+                if file != "none":                                      # Write results to file
                     history = open(file, "a")
-                    history.write("{},{:.2e},{:.1e},{:.1f}\n".          # Write results to file
-                        format(c_gen, min(F), np.mean(ALPHA), np.mean(BETA)))
+                    history.write(f"{c_gen},{min(F)},{np.mean(ALPHA)},{np.mean(BETA)}\n")
                     history.close()
                 return X, F, c_eval
 
@@ -204,21 +203,19 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
             if c_eval >= n_eval or min(F) <= epsilon:                   # Termination criteria
                 if is_print == True:
                     print("{}, {:.2e}, {:.1e}, {:.1f}".                 # Print results on screen
-                        format(c_gen, min(F), np.mean(ALPHA), np.mean(BETA)))
-                if file != "none":
+                          format(c_gen, min(F), np.mean(ALPHA), np.mean(BETA)))
+                if file != "none":                                      # Write results to file
                     history = open(file, "a")
-                    history.write("{},{:.2e},{:.1e},{:.1f}\n".          # Write results to file
-                        format(c_gen, min(F), np.mean(ALPHA), np.mean(BETA)))
+                    history.write(f"{c_gen},{min(F)},{np.mean(ALPHA)},{np.mean(BETA)}\n")
                     history.close()
                 return X, F, c_eval
 
         if is_print == True:
             print("{}, {:.2e}, {:.1e}, {:.1f}".                         # Print results on screen
                   format(c_gen, min(F), np.mean(ALPHA), np.mean(BETA)))
-        if file != "none":
+        if file != "none":                                              # Write results to file
             history = open(file, "a")
-            history.write("{},{:.2e},{:.1e},{:.1f}\n".                  # Write results to file
-                  format(c_gen, min(F), np.mean(ALPHA), np.mean(BETA)))
+            history.write(f"{c_gen},{min(F)},{np.mean(ALPHA)},{np.mean(BETA)}\n")
             history.close()
 
         ############

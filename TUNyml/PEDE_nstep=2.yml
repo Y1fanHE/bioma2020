@@ -1,0 +1,15 @@
+n_var : 30
+n_eval : 300000
+n_pop : 100
+diff_mode : "de/curr-to-pbest/1"
+F : [0.0, 1.0]
+CR : [0.0, 1.0]
+p : 0.05
+adapt_params : ["F", "CR"]
+adapt_strategy : "ga"
+indicator : "dfii/fi"
+n_step : 2
+epsilon : 0.0
+seed : [1000, 1031]
+is_print : False
+file_prefix : "PEDE_nstep=2_"
