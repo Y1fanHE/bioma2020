@@ -23,7 +23,7 @@ def plot_3D(problem_name, N=50, xbound=None):
     fig = plt.figure()                                              # Plotting 3D graph
     ax = fig.add_subplot(111, projection='3d')
 
-    ax.plot_surface(X1, X2, F, cmap='seismic')
+    ax.plot_surface(X1, X2, F, cmap='winter_r')
 
     plt.savefig(f"{problem_name}3D.svg")
     plt.close("all")
@@ -45,8 +45,8 @@ def plot_2D(problem_name, N=50, xbound=None):
         F.append(f(x))
     F = np.array(F).reshape(X1.shape)
 
-    plt.figure()                                              # Plotting 3D graph
-    plt.contour(X1, X2, F, levels=30, cmap='seismic')
+    plt.figure()                                                    # Plotting 2D graph
+    plt.contour(X1, X2, F, levels=30, cmap='winter_r')
     plt.colorbar()
     plt.savefig(f"{problem_name}2D.svg")
     plt.close("all")
@@ -56,4 +56,5 @@ problems = ["sphere", "rotated_hyper_ellipsoid", "different_power", "weighted_sp
             "ackley", "rastrigin", "griewank", "levy", "schwefel", "xin_she", "schaffer"]
 
 for problem in problems:
-    plot_2D(problem, 1000)
+    plot_3D(problem, 500)
+    plot_2D(problem, 500)

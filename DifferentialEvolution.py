@@ -175,7 +175,7 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
             yi_ = evaluate_fitness(xi_)                                 # Evaluate offspring
             c_eval += 1
 
-            if yi_ <= yi:                                               # Select better individual
+            if yi_ < yi:                                                # Select better individual
                 X[i], Y[i] = xi_, yi_
 
             if c_eval >= n_eval or min(Y) <= epsilon:                   # Termination criteria
@@ -230,27 +230,28 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
                     Fs[best] += np.random.randn() * 0.2
                     Fs = np.clip(Fs, F[0], F[1])
 
-            if adapt_strategy == "ga":                                  # GA adaption
+            if adapt_strategy == "ga" and np.sum(I) != 0:               # GA adaption, no operation if all indicator is 0
                 Fs, CRs = Fs, CRs
                 I = I / n_step + 1e-14
                 prob = I / np.sum(I)
+                pc, pm = 0.7, 0.2
                 if "CR" in adapt_params:
                     p1 = CRs[np.random.choice(n_pop, n_pop, p=prob)]    # Selction
                     sigma = np.random.uniform(0, 1, n_pop)
                     CRs_ = p1 * sigma + CRs * (1 - sigma)               # Crossover
                     rand = np.random.uniform(0, 1, n_pop)
-                    CRs[rand <= 0.7] = CRs_[rand <= 0.7]
+                    CRs[rand <= pc] = CRs_[rand <= pc]
                     CRs = CRs + levy(0.1, 1.5, n_pop) * \
-                        np.random.choice([0,1], n_pop, p=[0.7, 0.3])    # Mutation
+                        np.random.choice([0,1], n_pop, p=[1-pm, pm])    # Mutation
                     CRs = np.clip(CRs, CR[0], CR[1])                    # Repair to satisfy boundary constraint
                 if "F" in adapt_params:
                     p1 = Fs[np.random.choice(n_pop, n_pop, p=prob)]     # Selction
                     sigma = np.random.uniform(0, 1, n_pop)
                     Fs_ = p1 * sigma + Fs * (1 - sigma)                 # Crossover
                     rand = np.random.uniform(0, 1, n_pop)
-                    Fs[rand <= 0.7] = Fs_[rand <= 0.7]
+                    Fs[rand <= pc] = Fs_[rand <= pc]
                     Fs = Fs + levy(0.1, 1.5, n_pop) * \
-                        np.random.choice([0,1], n_pop, p=[0.7, 0.3])    # Mutation
+                        np.random.choice([0,1], n_pop, p=[1-pm, pm])    # Mutation
                     Fs = np.clip(Fs, F[0], F[1])                        # Repair to satisfy boundary constraint
 
             if adapt_strategy == "cauchy":                              # Cauchy adaption
@@ -260,13 +261,13 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
                 if "CR" in adapt_params:
                     if np.sum(I) > 0:
                         mu_ = np.mean(CRs[good_idx])                    # Compute average of successful parameters
-                    CR_mu = 0.9 * CR_mu + 0.1 * mu_
+                        CR_mu = 0.9 * CR_mu + 0.1 * mu_
                     CRs = np.random.standard_cauchy(n_pop) * 0.1 + CR_mu
                     CRs = np.clip(CRs, CR[0], CR[2])
                 if "F" in adapt_params:
                     if np.sum(I) > 0:
                         mu_ = np.mean(Fs[good_idx])                    # Compute average of successful parameters
-                    F_mu = 0.9 * F_mu + 0.1 * mu_
+                        F_mu = 0.9 * F_mu + 0.1 * mu_
                     Fs = np.random.standard_cauchy(n_pop) * 0.1 + F_mu
                     Fs = np.clip(Fs, F[0], F[2])
 
@@ -278,13 +279,13 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
                     if np.sum(I) > 0:
                         mu_ = np.sum(Fs[good_idx] ** 2) / \
                             np.sum(Fs[good_idx])                        # Compute average of successful parameters
-                    F_mu = 0.9 * F_mu + 0.1 * mu_
+                        F_mu = 0.9 * F_mu + 0.1 * mu_
                     Fs = np.random.standard_cauchy(n_pop) * 0.1 + F_mu
                     Fs = np.clip(Fs, F[0], F[2])
                 if "CR" in adapt_params:
                     if np.sum(I) > 0:
                         mu_ = np.mean(CRs[good_idx])                    # Compute average of successful parameters
-                    CR_mu = 0.9 * CR_mu + 0.1 * mu_
+                        CR_mu = 0.9 * CR_mu + 0.1 * mu_
                     CRs = np.random.normal(CR_mu, 0.1, n_pop)
                     CRs = np.clip(CRs, CR[0], CR[2])
 

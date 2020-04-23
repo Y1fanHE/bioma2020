@@ -67,7 +67,7 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
     indicator: string
       - indicator used to assess quality of parameters
         automatically set to "none" if adapt_strategy == "none" or "random"
-      - valid input: { "dfii/dfi" } !TODO - increase more indicators
+      - valid input: { "dfii/fi", "dfij/fj" } !TODO - increase more indicators
     n_step: int
       - frequency to update parameters
         e.g. n_step=20 means to parameters every 20 generations
@@ -164,7 +164,8 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
             c_eval += 1
 
             j = np.random.choice(n_pop)                                 # Randamly select individual
-            if fi_ <= F[j]:                                             # Select better individual
+            fj = F[j]
+            if fi_ <= fj:                                               # Select better individual
                 X[j], F[j] = xi_, fi_
 
             if c_eval >= n_eval or min(F) <= epsilon:                   # Termination criteria
@@ -179,6 +180,8 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
 
             if indicator == "dfii/fi":                                  # Cumulate indicator
                 I[i] += max([fi - fi_, 0]) / (fi + 1e-14)
+            if indicator == "dfij/fj":
+                I[i] += max([fj - fi_, 0]) / (fi + 1e-14)
 
         ###########
         # REPLACE #
@@ -245,18 +248,28 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
                     BETA[best] += np.random.randn() * 0.2
                     BETA = np.clip(BETA, beta[0], beta[1])
 
-            if adapt_strategy == "ga":                                  # GA adaption
+            if adapt_strategy == "ga" and np.sum(I) != 0:               # GA adaption, no operation if all indicator is 0
                 ALPHA, BETA = ALPHA, BETA
                 I = I / n_step + 1e-14
                 prob = I / np.sum(I)
+                pc, pm = 0.7, 0.2
+                if "alpha" in adapt_params:
+                    p1 = ALPHA[np.random.choice(n_pop, n_pop, p=prob)]   # Selection
+                    sigma = np.random.uniform(0, 1, n_pop)
+                    ALPHA_ = p1 ** sigma * ALPHA ** (1 / sigma)          # Crossover
+                    rand = np.random.uniform(0, 1, n_pop)
+                    ALPHA[rand <= pc] = ALPHA_[rand <= pc]
+                    ALPHA = ALPHA * levy(0.1, 1.5, n_pop) * \
+                        np.random.choice([0,1], n_pop, p=[1-pm, pm])    # Mutation
+                    ALPHA = np.clip(ALPHA, alpha[0], alpha[1])          # Repair to satisfy boundary constraint
                 if "beta" in adapt_params:
-                    p1 = BETA[np.random.choice(n_pop, n_pop, p=prob)]   # Selction
+                    p1 = BETA[np.random.choice(n_pop, n_pop, p=prob)]   # Selection
                     sigma = np.random.uniform(0, 1, n_pop)
                     BETA_ = p1 * sigma + BETA * (1 - sigma)             # Crossover
                     rand = np.random.uniform(0, 1, n_pop)
-                    BETA[rand <= 0.7] = BETA_[rand <= 0.7]
+                    BETA[rand <= pc] = BETA_[rand <= pc]
                     BETA = BETA + levy(0.1, 1.5, n_pop) * \
-                        np.random.choice([0,1], n_pop, p=[0.7, 0.3])    # Mutation
+                        np.random.choice([0,1], n_pop, p=[1-pm, pm])    # Mutation
                     BETA = np.clip(BETA, beta[0], beta[1])              # Repair to satisfy boundary constraint
 
             if adapt_strategy == "cauchy":                              # Cauchy adaption (!TODO - equivalent to JADE???)
@@ -266,7 +279,7 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
                 if "beta" in adapt_params:
                     if np.sum(I) > 0:
                         mu_ = np.mean(BETA[good_idx])                   # Compute average of successful parameters
-                    beta_mu = 0.9 * beta_mu + 0.1 * mu_
+                        beta_mu = 0.9 * beta_mu + 0.1 * mu_
                     BETA = np.random.standard_cauchy(n_pop) * 0.1 + beta_mu
                     BETA = np.clip(BETA, beta[0], beta[2])
 

@@ -22,4 +22,3 @@ for problem_name in problems["names"]:
                F=prof["F"], CR=prof["CR"], p=prof["p"],
                adapt_params=prof["adapt_params"], adapt_strategy=prof["adapt_strategy"], indicator=prof["indicator"], n_step=prof["n_step"],
                epsilon=prof["epsilon"], seed=seed, is_print=prof["is_print"], file=f"./tmp/{problem_name}/{prof['file_prefix']}{seed}.csv")
-    print(f"Finish test on {problem_name}.")
