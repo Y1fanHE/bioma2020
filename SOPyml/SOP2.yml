@@ -1,1 +1,1 @@
-names : ["dixon_price", "rosenbrock_chain", "rosenbrock_star", "k_tablet"]
+names: ["ackley", "alpinen1", "periodic", "rastrigin"]

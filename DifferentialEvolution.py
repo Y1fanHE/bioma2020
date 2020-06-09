@@ -1,10 +1,12 @@
 import numpy as np
 from LevyVector import levy
+import AdaptiveStrategy as Adaption
 
-def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
+def evolve(problem, n_eval=300000, n_pop=100,
            diff_mode="de/curr-to-pbest/1",
            F=0.5, CR=0.9, p=0.05,
-           adapt_params=[], adapt_strategy="none", indicator="none", n_step=1,
+           adapt_params=[], adapt_strategy="none", params_of_adapt_strategy={},
+           indicator="none", n_step=1,
            epsilon=1e-14, seed=1000, is_print=True, file="none"):
 
     '''
@@ -14,8 +16,6 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
     ----------
     problem: object
       - optimization problem to be solved
-    n_var: int
-      - dimension of search space
 
     Running Parameters
     ----------
@@ -83,6 +83,7 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
 
     evaluate_fitness = problem.f                                        # Get problem information
     xl, xu = problem.boundaries
+    n_var = problem.n_var
 
     #####################
     # PARAMETER SETTING #
@@ -154,7 +155,7 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
             xi, yi = X[i,:], Y[i]                                       # Get current individual
             Fi, CRi = Fs[i], CRs[i]                                     # Get current parameters
 
-            maskbit = np.random.choice([0, 1], n_var, p=[CRi, 1 - CRi]) # Get maskbit for crossover
+            maskbit = np.random.choice([0, 1], n_var, p=[1 - CRi, CRi]) # Get maskbit for crossover
 
             if diff_mode == "de":                                       # Reproduce by DE
                 xr1 = X[np.random.choice(n_pop),:]
@@ -178,25 +179,27 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
             if yi_ < yi:                                                # Select better individual
                 X[i], Y[i] = xi_, yi_
 
-            if c_eval >= n_eval or min(Y) <= epsilon:                   # Termination criteria
+            if c_eval >= n_eval or min(Y) - problem.optimalF <= epsilon:# Termination criteria
                 if is_print == True:
                     print("{}, {:.2e}, {:.1f}, {:.1f}".                 # Print results on screen
-                          format(c_gen, min(Y), np.mean(Fs), np.mean(CRs)))
+                          format(c_eval, min(Y), np.mean(Fs), np.mean(CRs)))
                 if file != "none":                                      # Write results to file
                     history = open(file, "a")
-                    history.write(f"{c_gen},{min(Y)},{np.mean(Fs)},{np.mean(CRs)}\n")
+                    history.write(f"{c_eval},{min(Y)},{np.mean(Fs)},{np.mean(CRs)}\n")
                     history.close()
                 return X, Y, c_eval
 
             if indicator == "dfii/fi":                                  # Cumulate indicator
-                I[i] += max([yi - yi_, 0]) / (yi + 1e-14)
+                I[i] += max([yi - yi_, 0]) / (yi - min(Y) + 1e-14)
+            if indicator == "dfii":
+                I[i] += max([yi - yi_, 0])
 
         if is_print == True:
             print("{}, {:.2e}, {:.1f}, {:.1f}".                         # Print results on screen
-                  format(c_gen, min(Y), np.mean(Fs), np.mean(CRs)))
+                  format(c_eval, min(Y), np.mean(Fs), np.mean(CRs)))
         if file != "none":                                              # Write results to file
             history = open(file, "a")
-            history.write(f"{c_gen},{min(Y)},{np.mean(Fs)},{np.mean(CRs)}\n")
+            history.write(f"{c_eval},{min(Y)},{np.mean(Fs)},{np.mean(CRs)}\n")
             history.close()
 
         ############
@@ -211,83 +214,42 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=100,
             if adapt_strategy == "random":                              # Random adaption
                 Fs, CRs = Fs, CRs
                 if "F" in adapt_params:
-                    Fs = np.random.uniform(F[0], F[1], n_pop)
+                    Fs = Adaption.rand_adapt(Fs, F[0], F[1])
                 if "CR" in adapt_params:
-                    CRs = np.random.uniform(CR[0], CR[1], n_pop)
+                    CRs = Adaption.rand_adapt(CRs, CR[0], CR[1])
 
             """
             !TODO - design a better variation for best_levy
             """
             if adapt_strategy == "best_levy":                           # Best levy adaption
                 Fs, CRs = Fs, CRs
-                best = np.argmin(Y)
                 if "CR" in adapt_params:
-                    CRs = CRs +  levy(0.1, 1.0, n_pop) * (CRs[best] - CRs)
-                    CRs[best] += np.random.randn() * 0.2
-                    CRs = np.clip(CRs, CR[0], CR[1])
+                    CRs = Adaption.best_levy_adapt(CRs, I[:], CR[0], CR[1], params_of_adapt_strategy)
                 if "F" in adapt_params:
-                    Fs = Fs +  levy(0.1, 1.0, n_pop) * (Fs[best] - Fs)
-                    Fs[best] += np.random.randn() * 0.2
-                    Fs = np.clip(Fs, F[0], F[1])
+                    Fs = Adaption.best_levy_adapt(Fs, I[:], F[0], F[1], params_of_adapt_strategy)
 
             if adapt_strategy == "ga" and np.sum(I) != 0:               # GA adaption, no operation if all indicator is 0
                 Fs, CRs = Fs, CRs
-                I = I / n_step + 1e-14
-                prob = I / np.sum(I)
-                pc, pm = 0.7, 0.2
                 if "CR" in adapt_params:
-                    p1 = CRs[np.random.choice(n_pop, n_pop, p=prob)]    # Selction
-                    sigma = np.random.uniform(0, 1, n_pop)
-                    CRs_ = p1 * sigma + CRs * (1 - sigma)               # Crossover
-                    rand = np.random.uniform(0, 1, n_pop)
-                    CRs[rand <= pc] = CRs_[rand <= pc]
-                    CRs = CRs + levy(0.1, 1.5, n_pop) * \
-                        np.random.choice([0,1], n_pop, p=[1-pm, pm])    # Mutation
-                    CRs = np.clip(CRs, CR[0], CR[1])                    # Repair to satisfy boundary constraint
+                    CRs = Adaption.ga_adapt(CRs, I[:], CR[0], CR[1], n_step, params_of_adapt_strategy)
                 if "F" in adapt_params:
-                    p1 = Fs[np.random.choice(n_pop, n_pop, p=prob)]     # Selction
-                    sigma = np.random.uniform(0, 1, n_pop)
-                    Fs_ = p1 * sigma + Fs * (1 - sigma)                 # Crossover
-                    rand = np.random.uniform(0, 1, n_pop)
-                    Fs[rand <= pc] = Fs_[rand <= pc]
-                    Fs = Fs + levy(0.1, 1.5, n_pop) * \
-                        np.random.choice([0,1], n_pop, p=[1-pm, pm])    # Mutation
-                    Fs = np.clip(Fs, F[0], F[1])                        # Repair to satisfy boundary constraint
+                    Fs = Adaption.ga_adapt(Fs, I[:], F[0], F[1], n_step, params_of_adapt_strategy)
 
             if adapt_strategy == "cauchy":                              # Cauchy adaption
                 Fs, CRs = Fs, CRs
-                I = I / n_step
-                good_idx = np.where(I != 0)                             # Collect successful parameters
                 if "CR" in adapt_params:
-                    if np.sum(I) > 0:
-                        mu_ = np.mean(CRs[good_idx])                    # Compute average of successful parameters
-                        CR_mu = 0.9 * CR_mu + 0.1 * mu_
-                    CRs = np.random.standard_cauchy(n_pop) * 0.1 + CR_mu
-                    CRs = np.clip(CRs, CR[0], CR[2])
+                    CRs, CR_mu = Adaption.cauchy_adapt(CRs, I[:], CR[0], CR[2], CR_mu, n_step, params_of_adapt_strategy)
                 if "F" in adapt_params:
-                    if np.sum(I) > 0:
-                        mu_ = np.mean(Fs[good_idx])                    # Compute average of successful parameters
-                        F_mu = 0.9 * F_mu + 0.1 * mu_
-                    Fs = np.random.standard_cauchy(n_pop) * 0.1 + F_mu
-                    Fs = np.clip(Fs, F[0], F[2])
+                    Fs, F_mu = Adaption.cauchy_adapt(Fs, I[:], F[0], F[2], F_mu, n_step, params_of_adapt_strategy)
 
             if adapt_strategy == "jade":                                # JADE adaption
                 Fs, CRs = Fs, CRs
-                I = I / n_step
-                good_idx = np.where(I != 0)                             # Collect successful parameters
                 if "F" in adapt_params:
-                    if np.sum(I) > 0:
-                        mu_ = np.sum(Fs[good_idx] ** 2) / \
-                            np.sum(Fs[good_idx])                        # Compute average of successful parameters
-                        F_mu = 0.9 * F_mu + 0.1 * mu_
-                    Fs = np.random.standard_cauchy(n_pop) * 0.1 + F_mu
-                    Fs = np.clip(Fs, F[0], F[2])
+                    params_of_adapt_strategy["avg_mode_adapt"] = "lehmer"
+                    Fs, F_mu = Adaption.cauchy_adapt(Fs, I[:], F[0], F[2], F_mu, n_step, params_of_adapt_strategy)
                 if "CR" in adapt_params:
-                    if np.sum(I) > 0:
-                        mu_ = np.mean(CRs[good_idx])                    # Compute average of successful parameters
-                        CR_mu = 0.9 * CR_mu + 0.1 * mu_
-                    CRs = np.random.normal(CR_mu, 0.1, n_pop)
-                    CRs = np.clip(CRs, CR[0], CR[2])
+                    params_of_adapt_strategy["avg_mode_adapt"] = "arithmetic"
+                    CRs, CR_mu = Adaption.gauss_adapt(CRs, I[:], CR[0], CR[2], CR_mu, n_step, params_of_adapt_strategy)
 
             if indicator != "none": I = I * 0                           # Clear indicator
 

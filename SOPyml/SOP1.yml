@@ -1,1 +1,1 @@
-names : ["sphere", "rotated_hyper_ellipsoid", "different_power", "weighted_sphere"]
+names : ["sphere", "sumsquares", "zakharov", "rosenbrock"]

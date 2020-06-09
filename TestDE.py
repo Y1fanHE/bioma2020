@@ -1,5 +1,5 @@
 import argparse, yaml, os
-from Factory import set_problem
+from PyBenchFCN import Factory
 from DifferentialEvolution import evolve
 
 os.makedirs("./tmp", exist_ok=True)
@@ -11,14 +11,19 @@ args = parser.parse_args()
 
 problems = yaml.safe_load(args.prob)
 prof = yaml.safe_load(args.prof)
+epsilons = yaml.safe_load(open("epsilons.yml", "r"))
 
 for problem_name in problems["names"]:
+
     os.makedirs(f"./tmp/{problem_name}", exist_ok=True)
-    problem = set_problem(problem_name)
+    problem = Factory.set_sop(problem_name, n_var=prof["n_var"])
     for seed in range(prof["seed"][0], prof["seed"][1]):
         X, F, c_eval = \
-        evolve(problem, n_var=prof["n_var"], n_eval=prof["n_eval"], n_pop=prof["n_pop"],
+        evolve(problem, n_eval=prof["n_eval"], n_pop=prof["n_pop"],
                diff_mode=prof["diff_mode"],
                F=prof["F"], CR=prof["CR"], p=prof["p"],
-               adapt_params=prof["adapt_params"], adapt_strategy=prof["adapt_strategy"], indicator=prof["indicator"], n_step=prof["n_step"],
-               epsilon=prof["epsilon"], seed=seed, is_print=prof["is_print"], file=f"./tmp/{problem_name}/{prof['file_prefix']}{seed}.csv")
+               adapt_params=prof["adapt_params"], adapt_strategy=prof["adapt_strategy"],
+               params_of_adapt_strategy=prof["params_of_adapt_strategy"],
+               indicator=prof["indicator"], n_step=prof["n_step"],
+               epsilon=epsilons["DE"][problem_name], seed=seed, is_print=prof["is_print"],
+               file=f"./tmp/{problem_name}/{prof['file_prefix']}{seed}.csv")

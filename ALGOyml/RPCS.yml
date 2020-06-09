@@ -3,14 +3,14 @@ n_eval : 300000
 n_pop : 20
 levy_mode : "lf"
 replace_mode : "best-to-rand"
-alpha : 1.e-09
+alpha : 1.e-07
 beta : [0.1, 1.9]
 pa : 0.1
 adapt_params : ["beta"]
 adapt_strategy : "random"
+params_of_adapt_strategy : "none"
 indicator : "none"
 n_step : 1
-epsilon : 0.0
 seed : [1000, 1031]
 is_print : False
 file_prefix : "RPCS_"

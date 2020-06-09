@@ -3,14 +3,17 @@ n_eval : 300000
 n_pop : 20
 levy_mode : "lf"
 replace_mode : "best-to-rand"
-alpha : 1.e-09
+alpha : 1.e-07
 beta : [0.1, 1.0, 1.9]
 pa : 0.1
 adapt_params : ["beta"]
 adapt_strategy : "cauchy"
-indicator : "dfii/fi"
+params_of_adapt_strategy :
+  gamma_adapt : 0.1
+  avg_mode_adapt : "arithmetic"
+  c_adapt : 0.1
+indicator : "dfij"
 n_step : 1
-epsilon : 0.0
 seed : [1000, 1031]
 is_print : False
 file_prefix : "JACS_"

@@ -1,0 +1,11 @@
+names : ["ackley", "ackleyn2", "ackleyn3", "adjiman", "alpinen1", "alpinen2", 
+         "bartelsconn", "beale", "bird", "bohachevskyn1", "bohachevskyn2", "booth", 
+         "brent", "brown", "bukinn6", "crossintray", "deckkersaarts", "dropwave", 
+         "easom", "eggcrate", "eggholder", "exponential", "goldsteinprice", "gramacylee", 
+         "griewank", "happycat", "himmelblau", "holdertable", "keane", "leon", 
+         "levin13", "matyas", "mccormick", "periodic", "picheny", "powellsum", 
+         "qing", "quartic", "rastrigin", "ridge", "rosenbrock", "salomon", 
+         "schaffern1", "schaffern2", "schaffern3", "schaffern4", "schwefel220", "schwefel221", 
+         "schwefel222", "schwefel223", "schwefel", "sphere", "styblinskitank", "sumsquares", 
+         "threehumpcamel", "wolfe", "xinsheyangn1", "xinsheyangn2", "xinsheyangn3", "xinsheyangn4", 
+         "zakharov"]

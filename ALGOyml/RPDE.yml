@@ -7,9 +7,9 @@ CR : [0.0, 1.0]
 p : 0.05
 adapt_params : ["F", "CR"]
 adapt_strategy : "random"
-indicator : "dfii/fi"
+params_of_adapt_strategy : "none"
+indicator : "none"
 n_step : 1
-epsilon : 0.0
 seed : [1000, 1031]
 is_print : False
 file_prefix : "RPDE_"

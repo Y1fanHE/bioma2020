@@ -1,10 +1,12 @@
 import numpy as np
 from LevyVector import levy
+import AdaptiveStrategy as Adaption
 
-def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
+def evolve(problem, n_eval=300000, n_pop=15,
            levy_mode="lf", replace_mode="lf",
            alpha=0.01, beta=1.5, pa=0.1,
-           adapt_params=[], adapt_strategy="none", indicator="none", n_step=20,
+           adapt_params=[], adapt_strategy="none", params_of_adapt_strategy={},
+           indicator="none", n_step=20,
            epsilon=1e-14, seed=1000, is_print=True, file="none"):
 
     '''
@@ -14,8 +16,6 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
     ----------
     problem: object
       - optimization problem to be solved
-    n_var: int
-      - dimension of search space
 
     Running Parameters
     ----------
@@ -86,6 +86,7 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
 
     evaluate_fitness = problem.f                                        # Get problem information
     xl, xu = problem.boundaries
+    n_var = problem.n_var
 
     #####################
     # PARAMETER SETTING #
@@ -168,20 +169,24 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
             if fi_ <= fj:                                               # Select better individual
                 X[j], F[j] = xi_, fi_
 
-            if c_eval >= n_eval or min(F) <= epsilon:                   # Termination criteria
+            if c_eval >= n_eval or min(F) - problem.optimalF <= epsilon:# Termination criteria
                 if is_print == True:
                     print("{}, {:.2e}, {:.1e}, {:.1f}".                 # Print results on screen
-                          format(c_gen, min(F), np.mean(ALPHA), np.mean(BETA)))
+                          format(c_eval, min(F), np.mean(ALPHA), np.mean(BETA)))
                 if file != "none":                                      # Write results to file
                     history = open(file, "a")
-                    history.write(f"{c_gen},{min(F)},{np.mean(ALPHA)},{np.mean(BETA)}\n")
+                    history.write(f"{c_eval},{min(F)},{np.mean(ALPHA)},{np.mean(BETA)}\n")
                     history.close()
                 return X, F, c_eval
 
             if indicator == "dfii/fi":                                  # Cumulate indicator
-                I[i] += max([fi - fi_, 0]) / (fi + 1e-14)
+                I[i] += max([fi - fi_, 0]) / (fi - min(F) + 1e-14)
             if indicator == "dfij/fj":
-                I[i] += max([fj - fi_, 0]) / (fi + 1e-14)
+                I[i] += max([fj - fi_, 0]) / (fj - min(F) + 1e-14)
+            if indicator == "dfii":
+                I[i] += max([fi - fi_, 0])
+            if indicator == "dfij":
+                I[i] += max([fj - fi_, 0])
 
         ###########
         # REPLACE #
@@ -200,25 +205,26 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
             if replace_mode == "best-to-rand":
                 rand = np.random.uniform(xl, xu, n_var)
                 xk_ = X[np.argmin(F)] + 0.5 * (rand - X[np.argmin(F)])
+                xk_ = np.clip(xk_, xl, xu)
             X[k], F[k] = xk_, evaluate_fitness(xk_)
 
             c_eval += 1
-            if c_eval >= n_eval or min(F) <= epsilon:                   # Termination criteria
+            if c_eval >= n_eval or min(F) - problem.optimalF <= epsilon:# Termination criteria
                 if is_print == True:
                     print("{}, {:.2e}, {:.1e}, {:.1f}".                 # Print results on screen
-                          format(c_gen, min(F), np.mean(ALPHA), np.mean(BETA)))
+                          format(c_eval, min(F), np.mean(ALPHA), np.mean(BETA)))
                 if file != "none":                                      # Write results to file
                     history = open(file, "a")
-                    history.write(f"{c_gen},{min(F)},{np.mean(ALPHA)},{np.mean(BETA)}\n")
+                    history.write(f"{c_eval},{min(F)},{np.mean(ALPHA)},{np.mean(BETA)}\n")
                     history.close()
                 return X, F, c_eval
 
         if is_print == True:
             print("{}, {:.2e}, {:.1e}, {:.1f}".                         # Print results on screen
-                  format(c_gen, min(F), np.mean(ALPHA), np.mean(BETA)))
+                  format(c_eval, min(F), np.mean(ALPHA), np.mean(BETA)))
         if file != "none":                                              # Write results to file
             history = open(file, "a")
-            history.write(f"{c_gen},{min(F)},{np.mean(ALPHA)},{np.mean(BETA)}\n")
+            history.write(f"{c_eval},{min(F)},{np.mean(ALPHA)},{np.mean(BETA)}\n")
             history.close()
 
         ############
@@ -233,55 +239,27 @@ def evolve(problem, n_var=30, n_eval=300000, n_pop=15,
             if adapt_strategy == "random":                              # Random adaption
                 ALPHA, BETA = ALPHA, BETA
                 if "alpha" in adapt_params:
-                    ALPHA = np.random.uniform(alpha[0], alpha[1], n_pop)
+                    ALPHA = Adaption.rand_adapt(ALPHA, alpha[0], alpha[1])
                 if "beta" in adapt_params:
-                    BETA = np.random.uniform(beta[0], beta[1], n_pop)
+                    BETA = Adaption.rand_adapt(ALPHA, beta[0], beta[1])
 
             """
             !TODO - design a better variation for best_levy
             """
             if adapt_strategy == "best_levy":                           # Best levy adaption
                 ALPHA, BETA = ALPHA, BETA
-                best = np.argmin(F)
                 if "beta" in adapt_params:
-                    BETA = BETA +  levy(0.1, 1.0, n_pop) * (BETA[best] - BETA)
-                    BETA[best] += np.random.randn() * 0.2
-                    BETA = np.clip(BETA, beta[0], beta[1])
+                    BETA = Adaption.best_levy_adapt(BETA, I[:], beta[0], beta[1], params_of_adapt_strategy)
 
-            if adapt_strategy == "ga" and np.sum(I) != 0:               # GA adaption, no operation if all indicator is 0
+            if adapt_strategy == "ga":                                  # GA adaption
                 ALPHA, BETA = ALPHA, BETA
-                I = I / n_step + 1e-14
-                prob = I / np.sum(I)
-                pc, pm = 0.7, 0.2
-                if "alpha" in adapt_params:
-                    p1 = ALPHA[np.random.choice(n_pop, n_pop, p=prob)]   # Selection
-                    sigma = np.random.uniform(0, 1, n_pop)
-                    ALPHA_ = p1 ** sigma * ALPHA ** (1 / sigma)          # Crossover
-                    rand = np.random.uniform(0, 1, n_pop)
-                    ALPHA[rand <= pc] = ALPHA_[rand <= pc]
-                    ALPHA = ALPHA * levy(0.1, 1.5, n_pop) * \
-                        np.random.choice([0,1], n_pop, p=[1-pm, pm])    # Mutation
-                    ALPHA = np.clip(ALPHA, alpha[0], alpha[1])          # Repair to satisfy boundary constraint
                 if "beta" in adapt_params:
-                    p1 = BETA[np.random.choice(n_pop, n_pop, p=prob)]   # Selection
-                    sigma = np.random.uniform(0, 1, n_pop)
-                    BETA_ = p1 * sigma + BETA * (1 - sigma)             # Crossover
-                    rand = np.random.uniform(0, 1, n_pop)
-                    BETA[rand <= pc] = BETA_[rand <= pc]
-                    BETA = BETA + levy(0.1, 1.5, n_pop) * \
-                        np.random.choice([0,1], n_pop, p=[1-pm, pm])    # Mutation
-                    BETA = np.clip(BETA, beta[0], beta[1])              # Repair to satisfy boundary constraint
+                    BETA = Adaption.ga_adapt(BETA, I[:], beta[0], beta[1], n_step, params_of_adapt_strategy)
 
             if adapt_strategy == "cauchy":                              # Cauchy adaption (!TODO - equivalent to JADE???)
                 ALPHA, BETA = ALPHA, BETA
-                I = I / n_step
-                good_idx = np.where(I != 0)                             # Collect successful parameters
                 if "beta" in adapt_params:
-                    if np.sum(I) > 0:
-                        mu_ = np.mean(BETA[good_idx])                   # Compute average of successful parameters
-                        beta_mu = 0.9 * beta_mu + 0.1 * mu_
-                    BETA = np.random.standard_cauchy(n_pop) * 0.1 + beta_mu
-                    BETA = np.clip(BETA, beta[0], beta[2])
+                    BETA, beta_mu = Adaption.cauchy_adapt(BETA, I[:], beta[0], beta[2], beta_mu, n_step, params_of_adapt_strategy)
 
             if indicator != "none": I = I * 0                           # Clear indicator
 

@@ -7,9 +7,18 @@ CR : [0.0, 1.0]
 p : 0.05
 adapt_params : ["F", "CR"]
 adapt_strategy : "ga"
-indicator : "dfii/fi"
+params_of_adapt_strategy :
+  pc_adapt : 0.7
+  pm_adapt : 0.3
+  crx_mode_adapt : "uniform_sum"
+  mut_mode_adapt : "levy"
+  alpha_adapt : 0.1
+  beta_adapt : 1.0
+  # mut_mode_adapt : "gauss"
+  # sigma_adapt : 0.1
+indicator : "dfii"
 n_step : 3
-epsilon : 0.0
+epsilon : 1.e-10
 seed : [1000, 1031]
 is_print : False
 file_prefix : "PEDE_nstep=3_"

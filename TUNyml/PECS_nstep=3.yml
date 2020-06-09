@@ -1,0 +1,25 @@
+n_var : 30
+n_eval : 300000
+n_pop : 20
+levy_mode : "lf"
+replace_mode : "best-to-rand"
+alpha : 1.e-07
+beta : [0.1, 1.9]
+pa : 0.1
+adapt_params : ["beta"]
+adapt_strategy : "ga"
+params_of_adapt_strategy :
+  pc_adapt : 0.7
+  pm_adapt : 0.3
+  crx_mode_adapt : "uniform_sum"
+  mut_mode_adapt : "levy"
+  alpha_adapt : 0.1
+  beta_adapt : 1.0
+  # mut_mode_adapt : "gauss"
+  # sigma_adapt : 0.1
+indicator : "dfii"
+n_step : 3
+epsilon : 1.e-10
+seed : [1000, 1031]
+is_print : False
+file_prefix : "PECS_nstep=3_"
