@@ -1,29 +1,3 @@
-#################################################################
-#                        ABSTRACT OF CODE                       #
-#                -------------------------------                #
-# Author: Yifan He (he.yifan.xs@alumni.tsukuba.ac.jp)           #
-#                -------------------------------                #
-# This file runs the program for Cuckoo Search (CS) Tuned on    #
-# 30-D problems.                                                #
-#                -------------------------------                #
-# The parameters are set as follows.                            #
-#  A) repetition: 31, max eval: 300,000 tolerance: 1e-10        #
-#  B) N: 20, alpha: 1e-07, beta: [0.1, 1.9], pa: 0.1            #
-#  C) mode of levy flight: x = x + L(alpha, beta)               #
-#  D) mode of replacement: x = xbest + 0.5 * (xrand - xbest)    #
-#  E) adaptive settings: None                                   #
-#                -------------------------------                #
-# {seed, best fitness, evaluation cost} are recorded.           #
-#                -------------------------------                #
-# Testing problems are                                          #
-#  A) Unimodal:   Sphere, Sum squares, Zakharov, Rosenbrock     #
-#  B) Multimodal: Ackley, Alpine N.1, Periodic, Rastrigin,      #
-#                 Schwefel, Styblinki-Tang, Griewank, Salomon,  #
-#                 Xin-She Yang's N.2, N.3 and N.4               #
-#                -------------------------------                #
-# Please follow the paper for the further information.          #
-#################################################################
-
 import argparse, yaml, os
 from PyBenchFCN import Factory
 from CuckooSearch import evolve
